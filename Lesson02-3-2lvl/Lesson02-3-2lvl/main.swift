@@ -8,14 +8,14 @@
 
 import Foundation
 
-var myString = "(100-50)-((2+3)*3-5)+(20-10)"    //=100
+var myString = "(100-40+((2+3)*3-5)+(20-10)+100-40)"    //=100
 var tempStr = ""
 var arrayOfStr = [String]()
 
 //убираю пропуски в рядку
 myString = myString.replacingOccurrences(of: " ", with: "")
 
-
+// Обрахунок дій з попереднього рівня кидаю в функцію для обчислення + - * /
 func calculateResult(ourString: String) -> Int {
     var tempString = ""
     var result = 0
@@ -24,7 +24,6 @@ func calculateResult(ourString: String) -> Int {
     var newArrayOfSymbols = [String]()      //таблиця знаків для дій + і -
     var newArrayOfNumbers = [Int]()         //таблиця чисел для дій + і -
     var i = 0
-    
     //йдемо по довжині всього виразу розбиваємо на літери
     for i in 0..<ourString.characters.count {
         let charSymbol = ourString.index(ourString.startIndex, offsetBy: i)
@@ -42,7 +41,6 @@ func calculateResult(ourString: String) -> Int {
         }
     }
     arrayOfNumbers += [Int(tempString)!]  //щоб додало останнє число
-    
     //проганяємо по циклі знаків
     while i < arrayOfSymbols.count {
         switch arrayOfSymbols[i] {
@@ -69,14 +67,12 @@ func calculateResult(ourString: String) -> Int {
         default:
             print("Ups problem, look at your code!")
         }
-        
         i += 1
     }
     // щоб додати останнє число в масив при діях + та -
     if arrayOfSymbols.last == "+" || arrayOfSymbols.last == "-" {
         newArrayOfNumbers += [arrayOfNumbers[i]]
     }
-    
     //додаємо до таблиці символів лише + та -
     for symbol in arrayOfSymbols {
         if symbol == "+" || symbol == "-" {
@@ -84,27 +80,32 @@ func calculateResult(ourString: String) -> Int {
         }
     }
     //присвоюємо результату перше число та починаючи з другого проганяємо по + та -
-    result = newArrayOfNumbers[0]
-    for i in 1..<newArrayOfNumbers.count {
-        if newArrayOfSymbols[i-1] == "+" {
-            result += newArrayOfNumbers[i]
-        }
-        if newArrayOfSymbols[i-1] == "-" {
-            result -= newArrayOfNumbers[i]
+    if newArrayOfNumbers.count == 0 {
+        result = arrayOfNumbers[0]
+    } else{
+        result = newArrayOfNumbers[0]
+        for i in 1..<newArrayOfNumbers.count {
+            if newArrayOfSymbols[i-1] == "+" {
+                result += newArrayOfNumbers[i]
+            }
+            if newArrayOfSymbols[i-1] == "-" {
+                result -= newArrayOfNumbers[i]
+            }
         }
     }
-    print(result)
-    return result
-
+     //   print(result)
+        return result
 }
+//--------------- кінець функції ---------------
 
+// Обчислюю дужки
 
-//---------------
 func calculateBrecket(myIndex: Int) {
     //витаскую і-тий елемент з рядка
     let elementIndex = myString.characters.index(myString.startIndex, offsetBy: myIndex)
     let elementStr = String(myString[elementIndex])
     // шукаю ) і добавляю до тимчасового стрінга вираз, якщо він є
+    
     if elementStr == ")" {
         arrayOfStr += [tempStr]
         if(!tempStr.isEmpty){
@@ -113,11 +114,21 @@ func calculateBrecket(myIndex: Int) {
     }
     if elementStr == "("  {
         // обнуляю тимчасовий стрінг якщо знайшли (
+        //arrayOfStr += [tempStr]
+        if(!tempStr.isEmpty) {
+            let sygn = tempStr[tempStr.index(before: tempStr.endIndex)]
+            tempStr.remove(at: tempStr.index(before: tempStr.endIndex))
+            tempStr = String(calculateResult(ourString: tempStr))
+            tempStr += String(sygn)
+            print(tempStr)
+        }
         arrayOfStr += [tempStr]
         tempStr = ""
     } else {
-        //убираю лишні скобки
+        //убираю лишні дужки
         tempStr += elementStr != ")" ? elementStr : ""
+        
+        //tempStr = String(calculateResult(ourString: tempStr))
     }
     //запускаю функцію для наступного елементу
     if (myIndex+1) < myString.characters.count {
@@ -127,3 +138,9 @@ func calculateBrecket(myIndex: Int) {
 
 calculateBrecket(myIndex: 0)
 print(arrayOfStr)
+
+
+
+
+
+

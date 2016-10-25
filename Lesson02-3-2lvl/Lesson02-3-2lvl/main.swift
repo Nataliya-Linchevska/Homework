@@ -8,27 +8,33 @@
 
 import Foundation
 
-var myString = "(100-40+((2+3)*3-5)+(20-10)+100-40)"    //=100
+var myString = "(100+10)+(100-40+((2+3)*3-5)+(20-10))+100-40"
 var tempStr = ""
 var arrayOfStr = [String]()
+var mainStr = ""
 
-//убираю пропуски в рядку
+// убираю пропуски в рядку
 myString = myString.replacingOccurrences(of: " ", with: "")
+// добавляю лишні дужки, щоб обчислило кінець виразу після дужок
+myString.insert("(", at: myString.index(myString.startIndex, offsetBy: 0))
+myString.append(")")
+print(myString)
 
-// Обрахунок дій з попереднього рівня кидаю в функцію для обчислення + - * /
+
+// ----------------------- функція з попередньої задачі для обчислення + - * / ---------------------
 func calculateResult(ourString: String) -> Int {
     var tempString = ""
     var result = 0
-    var arrayOfSymbols = [String]()         //таблиця знаків для всіх дій
-    var arrayOfNumbers = [Int]()            //таблиця чисел для всіх дій
-    var newArrayOfSymbols = [String]()      //таблиця знаків для дій + і -
-    var newArrayOfNumbers = [Int]()         //таблиця чисел для дій + і -
+    var arrayOfSymbols = [String]()         // таблиця знаків для всіх дій
+    var arrayOfNumbers = [Int]()            // таблиця чисел для всіх дій
+    var newArrayOfSymbols = [String]()      // таблиця знаків для дій + і -
+    var newArrayOfNumbers = [Int]()         // таблиця чисел для дій + і -
     var i = 0
-    //йдемо по довжині всього виразу розбиваємо на літери
+    // йдемо по довжині всього виразу розбиваємо на літери
     for i in 0..<ourString.characters.count {
         let charSymbol = ourString.index(ourString.startIndex, offsetBy: i)
         let singleCharacter = String(ourString[charSymbol])
-        //Шукаємо необхідні числа та дії
+        // Шукаємо необхідні числа та дії
         switch singleCharacter {
         case "0", "1", "2", "3", "4", "5", "6", "7", "8", "9":
             tempString += singleCharacter
@@ -40,8 +46,8 @@ func calculateResult(ourString: String) -> Int {
             print("Ups problem, look at your code!")
         }
     }
-    arrayOfNumbers += [Int(tempString)!]  //щоб додало останнє число
-    //проганяємо по циклі знаків
+    arrayOfNumbers += [Int(tempString)!]  // щоб додало останнє число
+    // проганяємо по циклі знаків
     while i < arrayOfSymbols.count {
         switch arrayOfSymbols[i] {
         case "+" :
@@ -73,13 +79,13 @@ func calculateResult(ourString: String) -> Int {
     if arrayOfSymbols.last == "+" || arrayOfSymbols.last == "-" {
         newArrayOfNumbers += [arrayOfNumbers[i]]
     }
-    //додаємо до таблиці символів лише + та -
+    // додаємо до таблиці символів лише + та -
     for symbol in arrayOfSymbols {
         if symbol == "+" || symbol == "-" {
             newArrayOfSymbols += [symbol]
         }
     }
-    //присвоюємо результату перше число та починаючи з другого проганяємо по + та -
+    // присвоюємо результату перше число та починаючи з другого проганяємо по + та -
     if newArrayOfNumbers.count == 0 {
         result = arrayOfNumbers[0]
     } else{
@@ -93,51 +99,45 @@ func calculateResult(ourString: String) -> Int {
             }
         }
     }
-     //   print(result)
         return result
 }
-//--------------- кінець функції ---------------
+//---------------------------------- кінець функції -----------------------------------
 
-// Обчислюю дужки
 
+// обчислюю вираз в дужках
 func calculateBrecket(myIndex: Int) {
-    //витаскую і-тий елемент з рядка
+    // витаскую і-тий елемент з рядка
     let elementIndex = myString.characters.index(myString.startIndex, offsetBy: myIndex)
     let elementStr = String(myString[elementIndex])
     // шукаю ) і добавляю до тимчасового стрінга вираз, якщо він є
-    
     if elementStr == ")" {
-        arrayOfStr += [tempStr]
-        if(!tempStr.isEmpty){
+        if(!tempStr.isEmpty) {
             tempStr = String(calculateResult(ourString: tempStr))
+            arrayOfStr += [tempStr]
         }
     }
-    if elementStr == "("  {
+    if elementStr == "(" {
         // обнуляю тимчасовий стрінг якщо знайшли (
-        //arrayOfStr += [tempStr]
         if(!tempStr.isEmpty) {
-            let sygn = tempStr[tempStr.index(before: tempStr.endIndex)]
-            tempStr.remove(at: tempStr.index(before: tempStr.endIndex))
-            tempStr = String(calculateResult(ourString: tempStr))
-            tempStr += String(sygn)
-            print(tempStr)
+            let sygn = tempStr[tempStr.index(before: tempStr.endIndex)]     // запам'ятовую дію перед дужками
+            tempStr.remove(at: tempStr.index(before: tempStr.endIndex))     // убираю дію з виразу перед дужками
+            tempStr = String(calculateResult(ourString: tempStr))           // обчислюю вираз перед дужками
+            tempStr += String(sygn)                                         // до обчисленого виразу дописую дію
+            mainStr += tempStr                                              // основний рядок, в який вписую значення для обчислення
         }
-        arrayOfStr += [tempStr]
         tempStr = ""
     } else {
         //убираю лишні дужки
         tempStr += elementStr != ")" ? elementStr : ""
-        
-        //tempStr = String(calculateResult(ourString: tempStr))
     }
     //запускаю функцію для наступного елементу
     if (myIndex+1) < myString.characters.count {
         calculateBrecket(myIndex: myIndex+1)
     }
 }
-
 calculateBrecket(myIndex: 0)
-print(arrayOfStr)
+mainStr += arrayOfStr.last!                     // дописую до виписаних дій перед дужками обчислення в дужках
+print(calculateResult(ourString: mainStr))      // обчислюю основний стрінг за допомогою функції
 
 
 

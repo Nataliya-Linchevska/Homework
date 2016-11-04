@@ -39,7 +39,8 @@ for i in 0..<ourString.characters.count {
     case "0", "1", "2", "3", "4", "5", "6", "7", "8", "9":
         tempString += singleCharacter
     case "+", "-", "*", "/" :
-        arrayOfNumbers += [Int(tempString)!]
+     // краще додавати об'єкти в масив через append()
+        arrayOfNumbers += [Int(tempString)!] // спочатку перетворюємо занчення в Int та записуємо в змінну, а тоді додаємо в масив
         arrayOfSymbols += [singleCharacter]
         tempString = ""
     default:
